@@ -1,3 +1,13 @@
+class Bucket:
+    def __init__(self, iterable):
+        self.active = set(iterable)
+        self.thrown = set()
+
+    def throw(self, item):
+        self.active.remove(item)
+        self.thrown.add(item)
+
+
 class Node:
     TERMINAL_ZERO = None
     TERMINAL_ONE = None

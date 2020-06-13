@@ -1,6 +1,6 @@
 from algorithms.solver import *
-from graph_tools import Graph
 from numberlink import HexLink
+from graph_tools import Graph
 import unittest
 
 

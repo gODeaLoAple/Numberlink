@@ -1,6 +1,45 @@
 import unittest
-from numberlink import HexLink
+from numberlink import HexLink, HexagonalField
 from graph_tools import Graph
+
+
+class HexagonalFieldTest(unittest.TestCase):
+    def setUp(self):
+        self.field = HexagonalField([
+            [3, 0, 0],            # 3 0 0
+            [4, 1, 0, 0],        # 4 1 0 0
+            [0, 0, 2, 2, 3],    # 0 0 2 2 3
+            [0, 0, 1, 4],        # 0 0 1 4
+            [0, 0, 0]             # 0 0 0
+        ])
+
+    def test_get_neighbours_top_when_all_valid(self):
+        expected = {(0, 0), (0, 1), (1, 0), (1, 2), (2, 1), (2, 2)}
+        self.assert_neighbours(expected, (1, 1))
+
+    def test_get_neighbours_top_when_some_invalid(self):
+        expected = {(0, 0), (0, 2), (1, 1), (1, 2)}
+        self.assert_neighbours(expected, (0, 1))
+
+    def test_get_neighbours_middle_when_all_valid(self):
+        expected = {(1, 0), (1, 1), (2, 0), (2, 2), (3, 0), (3, 1)}
+        self.assert_neighbours(expected, (2, 1))
+
+    def test_get_neighbours_middle_when_some_invalid(self):
+        expected = {(1, 0), (2, 1), (3, 0)}
+        self.assert_neighbours(expected, (2, 0))
+
+    def test_get_neighbours_bottom_when_all_valid(self):
+        expected = {(2, 1), (2, 2), (3, 0), (3, 2), (4, 0), (4, 1)}
+        self.assert_neighbours(expected, (3, 1))
+
+    def test_get_neighbours_bottom_when_some_invalid(self):
+        expected = {(3, 1), (3, 2), (4, 0), (4, 2)}
+        self.assert_neighbours(expected, (4, 1))
+
+    def assert_neighbours(self, expected, position):
+        actual = set(self.field.get_neighbours(*position))
+        self.assertSetEqual(expected, actual)
 
 
 class HexLinkTest(unittest.TestCase):
@@ -63,19 +102,6 @@ class HexLinkTest(unittest.TestCase):
             [0, 0],
             [2, 0, 0],
             [2, 0]
-        ]
-
-        self.assertRaises(ValueError, HexLink, field)
-
-    def test_init_raise_when_greater_than_nine(self):
-        field = [
-            [1, 0, 0, 1],
-            [2, 0, 0, 0, 2],
-            [3, 0, 0, 0, 0, 3],
-            [4, 0, 0, 0, 0, 0, 4],
-            [5, 0, 0, 5, 6, 6],
-            [7, 7, 8, 0, 8],
-            [9, 9, 10, 10]
         ]
 
         self.assertRaises(ValueError, HexLink, field)

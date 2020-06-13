@@ -1,10 +1,12 @@
-from numberlink import Numberlink
-from algorithms.structures import Node
+from numberlink import HexLink
+from algorithms.structures import Node, Bucket
 import itertools
 
-
-def is_terminal(node):
-    return node in [Node.TERMINAL_ZERO, Node.TERMINAL_ONE]
+"""
+Алгоритм был построены на основании статьи, которую можно скачать по ссылке:
+http://www.mdpi.com/1999-4893/5/2/176/pdf
+Огромная благодарность авторам статьи.
+"""
 
 
 def make_solutions(root, path=None):
@@ -26,24 +28,24 @@ def get_path(path, node):
     return path if node.arc == 0 else path + [node.edge]
 
 
-def solve(instance: Numberlink):
+def solve(instance: HexLink):
     """
     Принимает на вход задачу Numberlink.
-    Возвращает построенную согласно алгоритму <link to article>!!!!!!
-    диаграмму решений задачи.
+    Возвращает диаграмму решений задачи.
     """
     graph = instance.make_graph()
     targets = instance.get_targets()
-    vertices = {"active": set(graph.vertices()), "passive": set()}
+    vertices = Bucket(graph.vertices())
     edges = graph.edges()
 
-    root = Node(edges[0], {v: v for v in vertices["active"]}, 1)
+    root = Node(edges[0], {v: v for v in vertices.active}, 1)
 
     def get_node(node_edge, mate, arc):
         return Node(node_edge, mate, arc) if node_edge else Node.TERMINAL_ONE
 
     nodes = [root]
     while edges:
+        print(len(edges))
         edge = edges.pop(0)
         next_edge = edges[0] if edges else None
         update_vertices(vertices, edge, edges)
@@ -53,12 +55,12 @@ def solve(instance: Numberlink):
             if is_zero_incompatible(node, targets, vertices):
                 children.append(Node.TERMINAL_ZERO)
             else:
-                new_mate = update_domain(node.mate, vertices["active"])
+                new_mate = update_domain(node.mate, vertices.active)
                 children.append(get_node(next_edge, new_mate, 0))
             if is_one_incompatible(node, targets, vertices):
                 children.append(Node.TERMINAL_ZERO)
             else:
-                new_mate = update_domain(update_mate(node), vertices["active"])
+                new_mate = update_domain(update_mate(node), vertices.active)
                 children.append(get_node(next_edge, new_mate, 1))
             new_nodes.extend(n for n in children if not is_terminal(n))
             node.add_children(*children)
@@ -67,7 +69,7 @@ def solve(instance: Numberlink):
 
 
 def is_zero_incompatible(node, targets, vertices):
-    filtered = (v for v in node.edge if v not in vertices["active"])
+    filtered = (v for v in node.edge if v not in vertices.active)
 
     def condition(v):
         return (node.mate[v] == v
@@ -77,7 +79,7 @@ def is_zero_incompatible(node, targets, vertices):
 
 
 def is_one_incompatible(node, targets, vertices):
-    union = targets["vertices"] | vertices["passive"]
+    union = targets["vertices"] | vertices.thrown
     pair = {node.mate[v] for v in node.edge}
 
     def condition(v):
@@ -88,7 +90,19 @@ def is_one_incompatible(node, targets, vertices):
             or any(condition(v) for v in node.edge))
 
 
+def is_terminal(node):
+    return node in [Node.TERMINAL_ZERO, Node.TERMINAL_ONE]
+
+
+def is_not_terminal(node):
+    return not is_terminal(node)
+
+
 def update_domain(mate, domain):
+    """
+    Принимает на вход вспомогательную функцию и вершины.
+    Возвращает ограничение функции на данные вершины.
+    """
     return {v: mate[v] for v in domain}
 
 
@@ -120,8 +134,7 @@ def update_vertices(vertices, edge, edges):
     """
     vertices_in_edges = set(itertools.chain(*edges))
     for vertex in (v for v in edge if v not in vertices_in_edges):
-        vertices["active"].remove(vertex)
-        vertices["passive"].add(vertex)
+        vertices.throw(vertex)
 
 
 def get_opposite(x, pair):
@@ -129,8 +142,5 @@ def get_opposite(x, pair):
     Принимает на вход элемент и список/tuple из двух элементов.
     Возвращает парный элемент для x из pair, если x находится в списке,
     иначе возвращает None.
-    :param x:
-    :param pair:
-    :return:
     """
     return pair[0] if x == pair[1] else pair[1] if x == pair[0] else None

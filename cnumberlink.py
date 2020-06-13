@@ -1,5 +1,5 @@
 from numberlink import HexLink
-from algorithms import solve
+from algorithms import solve, generate_field
 import itertools
 import argparse
 import sys
@@ -14,6 +14,9 @@ class ConsoleHexLink:
             raise ValueError("Количество решений должно быть неотрицательным.")
         self.game = HexLink(field)
         self.amount = solutions_amount
+
+    def show_game(self):
+        print(self._get_solution_string(self.game.make_graph().edges()))
 
     def show_solutions(self):
         solutions = solve(self.game)
@@ -95,7 +98,12 @@ def create_parser():
                         type=int,
                         action="store")
     parser.add_argument("-g", "--generate",
+                        nargs=1,
+                        type=int,
                         help="generate instance of Numberlink",
+                        action="store")
+    parser.add_argument("--show",
+                        help="show the initial field",
                         action="store_true")
     return parser
 
@@ -109,14 +117,14 @@ def enter_field():
 
 def main():
     args = create_parser().parse_args()
-    field = None
     if args.generate:
-        ...
-        # field = generator.create_field()
+        field = generate_field(args.generate[0])
     else:
         field = enter_field()
     try:
         game = ConsoleHexLink(field, args.number)
+        if args.show:
+            game.show_game()
         game.show_solutions()
     except ValueError as err:
         print(err.args[0])

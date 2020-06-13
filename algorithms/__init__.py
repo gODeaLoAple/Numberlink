@@ -1,7 +1,2 @@
-"""
-Алгоритмы были построены на основании статьи, которую можно скачать по ссылке:
-http://www.mdpi.com/1999-4893/5/2/176/pdf
-Огромная благодарность авторам статьи.
-"""
-
 from algorithms.solver import solve
+from algorithms.generator import generate_field
