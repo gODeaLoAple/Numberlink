@@ -1,5 +1,6 @@
-from numberlink import HexLink
+from numberlink import HexLink, HexagonalField
 from algorithms.structures import Node, Bucket
+from algorithms.generator import generate_hexagonal_field
 import itertools
 
 """
@@ -7,6 +8,28 @@ import itertools
 http://www.mdpi.com/1999-4893/5/2/176/pdf
 Огромная благодарность авторам статьи.
 """
+
+
+def get_right_path(edge, paths):
+    for path in paths:
+        if any(v in path for v in edge):
+            return path
+    return None
+
+
+def make_field_from_solution(field: HexLink, solution):
+    result = HexagonalField(generate_hexagonal_field(field.size))
+
+    for pair in field.get_targets()["pairs"]:
+        start, end = tuple(pair)
+        number = field[start]
+        while start != end:
+            for edge in solution:
+                if start in edge:
+                    result[start] = number
+                    start = get_opposite(start, edge)
+        result[end] = number
+    return result.field
 
 
 def make_solutions(root, path=None):
@@ -45,7 +68,6 @@ def solve(instance: HexLink):
 
     nodes = [root]
     while edges:
-        print(len(edges))
         edge = edges.pop(0)
         next_edge = edges[0] if edges else None
         update_vertices(vertices, edge, edges)

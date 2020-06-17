@@ -8,9 +8,6 @@ class PathConstructorTest(unittest.TestCase):
         self.constructor = PathConstructor(HexagonalField(field))
         self.field = HexagonalField(field)
 
-    def make_constructor(self, field):
-        return PathConstructor(field)
-
     def test_count_added_neighbours_when_all_valid_and_zero(self):
         self.assert_count_added_neighbours(0, (2, 1))
 
@@ -51,16 +48,16 @@ class PathConstructorTest(unittest.TestCase):
 
     def test_isolated_False(self):
         self.assertFalse(
-            self.make_constructor(self.field).is_isolated((0, 0), 1, False)
+            PathConstructor(self.field).is_isolated((0, 0), 1, False)
         )
 
     def test_isolated_true_when_some_invalid(self):
         self.field[1, 0] = self.field[0, 1] = self.field[1, 1] = 1
         self.assertTrue(
-            self.make_constructor(self.field).is_isolated((0, 0), 1, True)
+            PathConstructor(self.field).is_isolated((0, 0), 1, True)
         )
         self.assertTrue(
-            self.make_constructor(self.field).is_isolated((0, 0), 2, False)
+            PathConstructor(self.field).is_isolated((0, 0), 2, False)
         )
 
     def test_isolated_true_when_all_valid(self):
@@ -68,10 +65,10 @@ class PathConstructorTest(unittest.TestCase):
         self.field[0, 0], self.field[1, 2] = 1, 1
         self.field[2, 1], self.field[2, 2] = 1, 1
         self.assertTrue(
-            self.make_constructor(self.field).is_isolated((1, 1), 1, True)
+            PathConstructor(self.field).is_isolated((1, 1), 1, True)
         )
         self.assertTrue(
-            self.make_constructor(self.field).is_isolated((1, 1), 2, False)
+            PathConstructor(self.field).is_isolated((1, 1), 2, False)
         )
 
     def test_has_isolated_empty_cell(self):
@@ -79,12 +76,12 @@ class PathConstructorTest(unittest.TestCase):
         self.field[1, 0], self.field[1, 2] = 1, 1
         self.field[2, 1], self.field[2, 2] = 1, 1
         self.assertTrue(
-            self.make_constructor(self.field).has_isolated_empty_cells(
+            PathConstructor(self.field).has_isolated_empty_cells(
                 (2, 2), 1, False
             )
         )
         self.assertTrue(
-            self.make_constructor(self.field).has_isolated_empty_cells(
+            PathConstructor(self.field).has_isolated_empty_cells(
                 (2, 2), 2, False
             )
         )
@@ -92,14 +89,15 @@ class PathConstructorTest(unittest.TestCase):
     def test_can_add_cell_false(self):
         self.field[0, 1] = self.field[1, 1] = 1
         self.assertFalse(
-            self.make_constructor(self.field).can_add_cell((1, 0), 1)
+            PathConstructor(self.field).can_add_cell((1, 0), 1)
         )
 
     def test_can_add_cell_true(self):
         self.field[0, 0] = 1
         self.assertTrue(
-            self.make_constructor(self.field).can_add_cell((0, 1), 1)
+            PathConstructor(self.field).can_add_cell((0, 1), 1)
         )
+
 
 class GeneratorTest(unittest.TestCase):
     def test_count(self):
@@ -144,6 +142,7 @@ class GeneratorTest(unittest.TestCase):
         actual = set(get_empty_cells(field))
 
         self.assertSetEqual(expected, actual)
+
 
 if __name__ == "__main__":
     unittest.main()

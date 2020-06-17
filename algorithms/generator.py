@@ -66,9 +66,6 @@ class PathConstructor:
         """
         Производит поиск пустой соседней клетки, добавление которой в путь
         не создает изолированных точек.
-        :param position:
-        :param number:
-        :return:
         """
         neighbours = list(self.field.get_neighbours(*position))
         start = random.randint(0, len(neighbours) - 1)
@@ -155,6 +152,8 @@ def generate_hexagonal_field(size):
 
 
 def generate_field(size=None):
+    if size % 2 == 0:
+        raise ValueError("Размер поля должен быть нечетным числом.")
     size = size or random.randrange(MIN_SIZE, MAX_SIZE + 1, 2)
     field = generate_hexagonal_field(size)
     constructor = PathConstructor(HexagonalField(field))

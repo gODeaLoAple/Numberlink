@@ -1,5 +1,6 @@
 import collections
 import itertools
+import copy
 from graph_tools import Graph
 
 CELL_EMPTY = 0
@@ -18,6 +19,16 @@ class HexagonalField:
     def __getitem__(self, key):
         level, index = key
         return self.field[level][index]
+
+    def __iter__(self):
+        yield from self.field
+
+    def __eq__(self, other):
+        for i, level in enumerate(self.field):
+            for j, cell in enumerate(level):
+                if other[i, j] != self[i, j]:
+                    return False
+        return True
 
     def get_environment(self, level, index):
         directions = [(0, -1), (0, 1), (1, 0), (-1, 0)]
@@ -86,7 +97,7 @@ class HexagonalField:
 class HexLink(HexagonalField):
 
     def __init__(self, field):
-        HexLink._check_field(field)
+        HexLink.check_field(field)
         super().__init__(field)
 
     def __getitem__(self, key):
@@ -118,7 +129,7 @@ class HexLink(HexagonalField):
         return targets
 
     @staticmethod
-    def _check_field(field):
+    def check_field(field):
         if field is None:
             raise ValueError("Поле было None.")
         HexLink._check_cells(field)

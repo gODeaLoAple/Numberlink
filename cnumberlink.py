@@ -110,22 +110,26 @@ def create_parser():
 
 def enter_field():
     field = []
-    while line := input().split():
+    while True:
+        line = input().split()
+        if not line:
+            break
         field.append(line)
     return field
 
 
 def main():
     args = create_parser().parse_args()
-    if args.generate:
-        field = generate_field(args.generate[0])
-    else:
-        field = enter_field()
     try:
+        if args.generate:
+            field = generate_field(args.generate[0])
+        else:
+            field = enter_field()
         game = ConsoleHexLink(field, args.number)
         if args.show:
             game.show_game()
-        game.show_solutions()
+        if args.number is None or args.number > 0:
+            game.show_solutions()
     except ValueError as err:
         print(err.args[0])
         sys.exit(-1)
